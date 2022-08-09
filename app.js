@@ -22,12 +22,12 @@ const connectionDev = mysql_connector.createConnection({
     database: 'dbdental'
   });
 const connectionPROD = mysql_connector.createConnection({
-    host: 'dsfd',
-    user: 'ua_',
+    host: '31.170.160.103',
+    user: 'u950689955_dentuser',
     password:'Jesus@123',
-    database: 'dbdental'
+    database: 'u950689955_dental'
   });
-const connection = connectionDev;
+const connection = connectionPROD;
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
