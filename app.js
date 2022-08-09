@@ -8,8 +8,19 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
+const corsOptionsDev = {
+  origin: 'http://localhost',
+  optionsSuccessStatus: 200 
+}
+
+const corsOptionsPROD = {
+  origin: 'https://jh-dental-api.herokuapp.com',
+  optionsSuccessStatus: 200 
+}
+const corsOptions = '';
+
 const cors = require('cors');
-app.use(cors())
+app.use(cors(corsOptions))
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}))
@@ -21,12 +32,21 @@ const connectionDev = mysql_connector.createConnection({
     password:'Jesus@123',
     database: 'dbdental'
   });
-const connectionPROD = mysql_connector.createConnection({
-    host: '31.170.160.103',
-    user: 'u950689955_dentuser',
-    password:'Jesus@123',
-    database: 'u950689955_dental'
+
+// const connectionPROD = mysql_connector.createConnection({
+//     host: '31.170.160.103',
+//     user: 'u950689955_dentuser',
+//     password:'Jesus@123',
+//     database: 'u950689955_dental'
+//   });
+
+  const connectionPROD = mysql_connector.createConnection({
+    host: process.env.MYSQL_HOST || '31.170.160.103',
+    user: process.env.DB_USER || 'u950689955_dentuser',
+    password: process.env.DB_PWD || 'Jesus@123',
+    database: process.env.DB_NAME || 'u950689955_dental'
   });
+
 const connection = connectionPROD;
 
 app.listen(port, () => {
@@ -39,15 +59,23 @@ app.get('/', (req, res) => {
 
 app.get('/api/getPatients', (req, res) => {
   const sqlSelect = "select * from patients";
-  connection.query(sqlSelect, (err, results) => {
-    res.json(results);
-  });
+  try{
+    connection.query(sqlSelect, (err, results) => {
+      res.json(results);
+    });
+    
+  }
+  catch (err) {
+    // console.log('Error!' + err.message);
+    res.json(err);
+  }
+  // connection.end();
 })
 
-connection.connect(function(error){
-  if(!!error) console.log(error);
-  else console.log('Database Connected!');
-});
+// connection.connect(function(error){
+//   if(!!error) console.log(error);
+//   else console.log('Database Connected!');
+// });
 
 app.post('/api/insertPatient', (req, res) => {
   const PatID = req.body.PatID;
