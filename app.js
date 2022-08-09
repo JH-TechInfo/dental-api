@@ -26,28 +26,23 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}))
 
 const mysql_connector = require('mysql');
-const connectionDev = mysql_connector.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password:'Jesus@123',
-    database: 'dbdental'
-  });
 
-// const connectionPROD = mysql_connector.createConnection({
-//     host: '31.170.160.103',
-//     user: 'u950689955_dentuser',
+// const connection = mysql_connector.createConnection({
+//     host: 'localhost',
+//     user: 'root',
 //     password:'Jesus@123',
-//     database: 'u950689955_dental'
+//     database: 'dbdental'
 //   });
 
-  const connectionPROD = mysql_connector.createConnection({
+
+  const connection = mysql_connector.createConnection({
     host: process.env.MYSQL_HOST || '31.170.160.103',
     user: process.env.DB_USER || 'u950689955_dentuser',
     password: process.env.DB_PWD || 'Jesus@123',
     database: process.env.DB_NAME || 'u950689955_dental'
   });
 
-const connection = connectionPROD;
+// const connection = connectionPROD;
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
@@ -59,23 +54,22 @@ app.get('/', (req, res) => {
 
 app.get('/api/getPatients', (req, res) => {
   const sqlSelect = "select * from patients";
-  try{
-    connection.query(sqlSelect, (err, results) => {
-      res.json(results);
-    });
-    
-  }
-  catch (err) {
-    // console.log('Error!' + err.message);
-    res.json(err);
-  }
-  // connection.end();
+  connection.query(sqlSelect, (err, results) => {
+    res.json(results);
+  });
 })
 
 // connection.connect(function(error){
 //   if(!!error) console.log(error);
 //   else console.log('Database Connected!');
 // });
+
+setInterval(keepAlive, 18000);
+function keepAlive() {
+    connection.query('SELECT 1');
+    console.log("Fired Keep-Alive");
+    return;
+}
 
 app.post('/api/insertPatient', (req, res) => {
   const PatID = req.body.PatID;
